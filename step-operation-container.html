@@ -1,0 +1,252 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../app-layout/app-header/app-header.html">
+<link rel="import" href="../app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-tabs/paper-tabs.html">
+<link rel="import" href="../paper-tabs/paper-tab.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+<link rel="import" href="../polymer/lib/utils/flattened-nodes-observer.html">
+
+
+<dom-module id="step-operation-container">
+  <template>
+    <style>
+        :host {
+            display: block;
+            position: relative;
+            margin:0;
+            width: 100%;
+            height: 100%;
+            
+            @apply --typography;
+        }
+        
+        app-toolbar{
+            padding: 0;
+            background-color: #eee;
+            height: auto;
+        }
+        app-toolbar paper-tabs {
+            width: 100%
+        }
+        
+        .container{
+            height: 100%;
+            position: relative;
+        }
+        
+        iron-pages{
+            height: calc(100% - 32px);
+            margin: 16px
+        }
+        
+        paper-tab.iron-selected{
+            font-weight: bold;
+        }
+
+        ::slotted(*){
+            @apply --typography;
+        }
+    </style>
+    
+
+    <app-header-layout fullbleed has-scrolling-region>
+    
+        <template is="dom-if" if="[[!hideNavbar]]">
+            <app-header fixed>
+                <app-toolbar bottom-item>
+                    <paper-tabs id="tabs" selected="{{selected}}" fit-container scrollable noink hide-scroll-buttons>
+                        <template is="dom-repeat" items="{{operation.steps}}">
+                            <paper-tab disabled="{{!item.enabled}}">{{item.name}}</paper-tab>
+                        </template>
+                    </paper-tabs>
+                </app-toolbar>
+            </app-header>
+        </template>
+        
+        <div class="container">
+            <iron-pages selected="{{selected}}">
+            
+                <slot id="slot"></slot>
+                
+            </iron-pages>
+        </div>
+    </app-header-layout>
+
+  </template>
+
+  <script>
+    /**
+     * `p-step-operation-container`
+     * Step operations container component
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class StepOperationContainer extends Polymer.Element {
+        static get is() { return 'step-operation-container'; }
+        static get properties() {
+            return {
+                operationAsString: String,
+                operation: {
+                    type: Object,
+                    notify: true
+                },
+                selected: {
+                    type: Number,
+                    value: 0
+                },
+                hideNavbar: {
+                    type: Boolean,
+                    value: false,
+                    reflectToAttribute: true
+                },
+                
+                _cleanOperation: Object
+            };
+        }
+
+        static get observers(){
+            return ['_resultsChanged(operation.steps.*)', ];
+        }
+
+        _getOperationStepByKey(stepKey){
+            return this.operation.steps.filter(
+                (item)=>{
+                    return (item.key == stepKey);
+                })[0];
+        }
+        
+        _getStepIndexByKey(stepKey){
+            console.log('get step by key', stepKey);
+            for(let i=0; i<this.operation.steps.length; i++){
+                if(this.operation.steps[i].key == stepKey){
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        _setNextOperationStepsEnableState(stepKey, value){
+            let changes = {};
+            let notifies = [];
+            let completedStep = this._getOperationStepByKey(stepKey);
+            let keysOfItemsToChange = completedStep.enables;
+            
+            for(let i=0; i<this.operation.steps.length; i++){
+                let step = this.operation.steps[i];
+                if (keysOfItemsToChange.indexOf(step.key) > -1){
+                    changes['operation.steps.' + i + '.enabled'] = value;
+                    // disable sub-related
+                    this._setNextOperationStepsEnableState(step.key, false);
+                }
+            }
+            
+            console.log('setting next ste', stepKey, completedStep, keysOfItemsToChange, 'changes', changes, 'status', status, 'notifies', notifies);
+            this.setProperties(changes);
+        }
+        
+        _activateNextSteps(stepKey){
+            let nextSelected = this.selected;
+            let completedStep = this._getOperationStepByKey(stepKey);
+            let keysOfItemsToChange = completedStep.enables;
+            let changes = {};
+
+            for(let i=0; i<this.operation.steps.length; i++){
+                let step = this.operation.steps[i];
+                if (keysOfItemsToChange.indexOf(step.key) > -1){
+                    if(nextSelected == this.selected){
+                        // enabling step
+                        changes['operation.steps.' + i + '.enabled'] = true;
+                        nextSelected = i;
+                    }
+                }
+            }
+            changes['selected'] = nextSelected;
+            
+            this.setProperties(changes);
+        }
+        
+        _clearNextSteps(stepKey, changes){
+            console.log('cleaning next steps', stepKey, changes);
+            if(changes == undefined){
+                changes = {};
+            }
+            let completedStep = this._getOperationStepByKey(stepKey);
+            let keysOfItemsToChange = completedStep.enables;
+            
+            let indexesOfItemsToChange = keysOfItemsToChange.map((key)=>{
+                return this._getStepIndexByKey(key);
+                });
+            for(let i=0; i<indexesOfItemsToChange.length; i++){
+                let index = indexesOfItemsToChange[i];
+                changes['operation.steps.' + index + '.enabled'] = this.get('_cleanOperation.steps.' + index + '.enabled');
+                changes['operation.steps.' + index + '.result'] = this.get('_cleanOperation.steps.' + index + '.result');
+            }
+                
+            console.log('next steps to change', indexesOfItemsToChange);
+            for(let i=0; i<keysOfItemsToChange.length; i++){
+                this._clearNextSteps(keysOfItemsToChange[i], changes);
+            }
+            
+            return changes;
+        }
+        
+        _resultsChanged(change){
+            if(change.path !== 'operation.steps' && change.path.indexOf('.enabled') == -1){
+                console.log('!!operation results changed', change);
+                // result has chaged
+                let stepPath = change.path.replace('.result', '');
+                let stepKey = this.get(stepPath + '.key');
+                console.log('gettings things from key', stepPath, stepPath + '.key', stepKey);
+                
+                let changes = this._clearNextSteps(stepKey);
+                console.log('CHANGES!!!', changes);
+                this.setProperties(changes);
+                
+                this._activateNextSteps(stepKey);
+            }
+        }
+
+        ready(){
+            super.ready();
+            // Check component initialization parameters
+            if(this.operation==undefined){
+                if(this.operationAsString != undefined){
+                    this.setProperties(
+                        {
+                        'operation': JSON.parse(this.operationAsString),
+                        '_cleanOperation': JSON.parse(this.operationAsString)
+                        });
+                }
+                else{
+                    throw 'Either operation or operation-as-string parameters must be set';
+                }
+            }
+            else{
+                this.setProperties(
+                    {
+                        'operation': operation,
+                        '_cleanOperation': Object.assign({}, operation)
+                    });
+            }
+            console.log('operation object', this.operation, this._cleanOperation, this.operationAsString);
+            
+            // Use observer to set operation-step object ids
+            this._observer = new Polymer.FlattenedNodesObserver(this.$.slot, (info) => {
+                let n = info.addedNodes.filter(function(node) {
+                    return (node.nodeType === Node.ELEMENT_NODE);
+                });
+                for(let i=0; i<n.length; i++){
+                    n[i].setAttribute('index', i);
+                }
+            });
+        }
+        
+    }
+
+    window.customElements.define(StepOperationContainer.is, StepOperationContainer);
+  </script>
+</dom-module>

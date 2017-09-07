@@ -1,0 +1,111 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+
+<dom-module id="operation-step">
+    <template>
+        <style>
+        :host {
+            display: block;
+            margin:0;
+            width: 100%;
+            height: 100%;
+
+            @apply --typography;
+        }
+
+        p.description{
+            padding: 4px 0 8px;
+            margin: 0;
+        }
+
+        .container{
+            height: 100%;
+            margin: 0;
+            @apply(--layout-vertical);
+        }
+
+        ::slotted(*){
+            @apply --typography;
+            @apply(--layout-flex);
+        }
+        </style>
+        
+        <div class="container">
+            <template is="dom-if" if=[[_description]]>
+                <p class="small description">[[_description]]</p>
+            </template>
+            
+            <slot></slot>
+        </div>
+    
+    </template>
+
+    <script>
+    /**
+     * `operation-step`
+     * Operation step component
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class OperationStep extends Polymer.Element {
+        static get is() { return 'operation-step'; }
+        static get properties() {
+            return {
+                operation: {
+                    type: Object,
+                    notify: true
+                },
+                index: {
+                    type: Number,
+                    reflectToAttribute: true,
+                },
+                result: {
+                    type: Object
+                },
+                loading: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
+                },
+                
+                _description:{
+                    type: String,
+                    computed: '_getDescription(operation, index)'
+                }
+            };
+        }
+      
+        static get observers(){
+            return ['_resultChanged(result)', ];
+        }
+        
+        _setResult(result){
+            this.set('operation.steps.' + this.index + '.result', result);
+        }
+      
+        _resultChanged(result){
+            console.log('step result changed', result);
+            if(result){
+                this._setResult(result);
+            }
+        }
+      
+        ready(){
+            super.ready();
+            console.log('step operation', this.operation, this.index);
+        }
+        
+        _getDescription(operation, index){
+            return this.get('operation.steps.' + this.index + '.description');
+        }
+
+    }
+
+    window.customElements.define(OperationStep.is, OperationStep);
+    </script>
+</dom-module>
