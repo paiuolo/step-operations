@@ -26,7 +26,7 @@
         div.buttons{
             text-align: right;
         }
-        h4.title{
+        .title{
           padding: 4px 0;
           margin: 0;
         }
@@ -47,7 +47,7 @@
         url="[[url]]"></iron-ajax>
     
     <div class="container">
-        <h4 class="title">Review:</h4>
+        <slot name="title" class="title"></slot>
         
         <div class="slotted">
             <slot></slot>
