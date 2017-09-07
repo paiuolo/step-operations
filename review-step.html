@@ -1,0 +1,126 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../paper-button/paper-button.html">
+
+
+<dom-module id="apply-operation-step">
+  <template>
+    <style include="shared-styles">
+        :host {
+            display: block;
+            height: 100%;
+            margin: 0;
+            
+            @apply --typography;
+        }
+        
+        div.container{
+            height: 100%;
+            margin: 0;
+            @apply(--layout-vertical);
+        }
+        div.slotted{
+            @apply(--layout-flex);
+        }
+        div.buttons{
+            text-align: right;
+        }
+        h4.title{
+          padding: 4px 0;
+          margin: 0;
+        }
+    </style>
+    
+    <slot name="loader"></slot>
+    
+    <iron-ajax
+        id="xhr"
+        method="POST"
+        on-response="_onResponse"
+        on-error="_onError"
+        handle-as="json"
+        content-type="application/json"
+        loading="{{loading}}"
+        body="[[operation]]"
+        headers="[[_getHeaders()]]"
+        url="[[_url]]"></iron-ajax>
+    
+    <div class="container">
+        <h4 class="title">Review:</h4>
+        
+        <div class="slotted">
+            <slot></slot>
+        </div>
+        
+        <div class="buttons">
+            <paper-button on-click="_runOperation">Run</paper-button>
+        </div>
+    </div>
+    
+  </template>
+
+  <script>
+    /**
+     * `apply-operation-step`
+     * Operation step review webcomponent
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class ApplyOperationStep extends Polymer.Element {
+        static get is() { return 'apply-operation-step'; }
+        static get properties() {
+            return {
+                operation: Object,
+                result: {
+                    type: Object,
+                    notify: true
+                },
+                url: {
+                    type: String
+                },
+                loading: {
+                    type: Boolean,
+                    value: false,
+                    notify: true,
+                    reflectToAttribute: true
+                }
+            };
+        }
+
+        ready(){
+            super.ready();
+            console.log('operation review ready', this.operation, this.url);
+        }
+
+        _runOperation(ev){
+            console.log('run operation', this.operation, this.$.xhr);
+            this.$.xhr.generateRequest();
+        }
+        
+        _getHeaders(){
+            var csrftoken = Cookies.get('csrftoken');
+            // console.log('CSRF', csrftoken);
+            return {
+                "X-CSRFToken": csrftoken,
+            };
+        }
+        
+        _onResponse(ev){
+            var response = ev.detail;
+            var response_object = response.response;
+            console.log('step operation review response', response, response_object);
+            this.set('result', response_object);
+        }
+        
+        _onError(ev){
+            var response = ev.detail;
+            console.log('ERROR! step operation review', response);
+        }
+    }
+
+    window.customElements.define(ApplyOperationStep.is, ApplyOperationStep);
+  </script>
+</dom-module>
