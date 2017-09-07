@@ -18,7 +18,70 @@ $ polymer serve
 
 ## Usage
 
-Manages operation JSON objects in the form:
+```html
+<dom-bind>
+    <template>
+        <step-operation-container
+            operation-as-string="{{ string_tool_step_operation }}" 
+            operation="{{operation}}">
+            
+            <operation-step
+                operation="{{operation}}"
+                result="{{selected_name}}">
+
+                <div class="field">
+                    <dropdown-selector
+                        url="..." 
+                        selected="{{selected_name}}"
+                        </dropdown-selector>
+                </div>
+            </operation-step>
+            
+            <operation-step
+                operation="{{operation}}"
+                result="{{selected_surname}}">
+
+                <div class="field">
+                    <dropdown-selector
+                        url="..." 
+                        selected="{{selected_surname}}"
+                        </dropdown-selector>
+                </div>
+            </operation-step>
+            
+            <operation-step
+                operation="{% verbatim %}{{operation}}{% endverbatim %}"
+                result="{% verbatim %}{{operation_result}}{% endverbatim %}">
+                
+                <django-csrf-token headers="{{tokenHeaders}}"></django-csrf-token>
+                
+                <apply-operation-step
+                    operation="{{operation}}"
+                    result="{{operation_result}}"
+                    url="..."
+                    headers="[[tokenHeaders]]">
+                    
+                    <div class="review">
+                        [[selected_name]] [[selected_surname]]
+                    </div>
+                </apply-operation-step>
+            </operation-step>
+            
+            
+            <operation-step
+                operation="{% verbatim %}{{operation}}{% endverbatim %}">
+                
+                <div class="result">
+                    <h2>[[operation_result.message]]</h2>
+                </div>
+                
+            </operation-step>
+        </step-operation-container>
+    </template>
+</dom-bind>
+```
+
+Operation JSON object example:
 
 ```html
 {
@@ -67,7 +130,8 @@ Manages operation JSON objects in the form:
 ```
 
 #### Options:
-- hide-navbar: hides top navbar
+
+...
 
 
 ## Running Tests
