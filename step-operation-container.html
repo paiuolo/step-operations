@@ -120,7 +120,6 @@
         }
         
         _getStepIndexByKey(stepKey){
-            console.log('get step by key', stepKey);
             for(let i=0; i<this.operation.steps.length; i++){
                 if(this.operation.steps[i].key == stepKey){
                     return i;
@@ -143,8 +142,7 @@
                     this._setNextOperationStepsEnableState(step.key, false);
                 }
             }
-            
-            console.log('setting next ste', stepKey, completedStep, keysOfItemsToChange, 'changes', changes, 'status', status, 'notifies', notifies);
+
             this.setProperties(changes);
         }
         
@@ -169,11 +167,8 @@
             this.setProperties(changes);
         }
         
-        _clearNextSteps(stepKey, changes){
-            console.log('cleaning next steps', stepKey, changes);
-            if(changes == undefined){
-                changes = {};
-            }
+        _clearNextSteps(stepKey){
+            let changes = {};
             let completedStep = this._getOperationStepByKey(stepKey);
             let keysOfItemsToChange = completedStep.enables;
             
@@ -185,13 +180,12 @@
                 changes['operation.steps.' + index + '.enabled'] = this.get('_cleanOperation.steps.' + index + '.enabled');
                 changes['operation.steps.' + index + '.result'] = this.get('_cleanOperation.steps.' + index + '.result');
             }
-                
-            console.log('next steps to change', indexesOfItemsToChange);
+            
             for(let i=0; i<keysOfItemsToChange.length; i++){
-                this._clearNextSteps(keysOfItemsToChange[i], changes);
+                this._clearNextSteps(keysOfItemsToChange[i]);
             }
             
-            return changes;
+            this.setProperties(changes);
         }
         
         _resultsChanged(change){
@@ -200,13 +194,11 @@
                 // result has chaged
                 let stepPath = change.path.replace('.result', '');
                 let stepKey = this.get(stepPath + '.key');
-                console.log('gettings things from key', stepPath, stepPath + '.key', stepKey);
                 
-                let changes = this._clearNextSteps(stepKey);
-                console.log('CHANGES!!!', changes);
-                this.setProperties(changes);
-                
-                this._activateNextSteps(stepKey);
+                this._clearNextSteps(stepKey);
+                if(change.value){
+                    this._activateNextSteps(stepKey);
+                }
             }
         }
 
@@ -250,3 +242,4 @@
     window.customElements.define(StepOperationContainer.is, StepOperationContainer);
   </script>
 </dom-module>
+
