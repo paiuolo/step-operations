@@ -94,7 +94,6 @@ Operation JSON object example:
             "name": "Select name",
             "description": null,
             "enabled": true,
-            "completed": false,
             "enables": ["select_surname"],
             "result": null
         },
@@ -103,7 +102,6 @@ Operation JSON object example:
             "name": "Select surname",
             "description": none,
             "enabled": false,
-            "completed": false,
             "enables": ["review"],
             "result": null
         },
@@ -112,7 +110,6 @@ Operation JSON object example:
             "name": "Review",
             "description": null,
             "enabled": false,
-            "completed": false,
             "enables": ["results"],
             "result": null
         },
@@ -121,7 +118,6 @@ Operation JSON object example:
             "name": "Results",
             "description": null,
             "enabled": false,
-            "completed": false,
             "enables": [],
             "result": null
         }

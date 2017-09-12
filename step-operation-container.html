@@ -128,24 +128,6 @@
             return -1;
         }
         
-        _setNextOperationStepsEnableState(stepKey, value){
-            let changes = {};
-            let notifies = [];
-            let completedStep = this._getOperationStepByKey(stepKey);
-            let keysOfItemsToChange = completedStep.enables;
-            
-            for(let i=0; i<this.operation.steps.length; i++){
-                let step = this.operation.steps[i];
-                if (keysOfItemsToChange.indexOf(step.key) > -1){
-                    changes['operation.steps.' + i + '.enabled'] = value;
-                    // disable sub-related
-                    this._setNextOperationStepsEnableState(step.key, false);
-                }
-            }
-
-            this.setProperties(changes);
-        }
-        
         _activateNextSteps(stepKey){
             let nextSelected = this.selected;
             let completedStep = this._getOperationStepByKey(stepKey);
