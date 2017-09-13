@@ -23,28 +23,28 @@ $ polymer serve
     <template>
         <step-operation-container
             operation-as-string="{{ string_tool_step_operation }}" 
-            operation="{{operation}}">
+            operation="{% verbatim %}{{operation}}{% endverbatim %}">
             
             <operation-step
-                operation="{{operation}}"
-                result="{{selected_name}}">
+                operation="{% verbatim %}{{operation}}{% endverbatim %}"
+                result="{% verbatim %}{{selected_name}}{% endverbatim %}">
 
                 <div class="field">
                     <dropdown-selector
                         url="..." 
-                        selected="{{selected_name}}"
+                        selected="{% verbatim %}{{selected_name}}{% endverbatim %}"
                         </dropdown-selector>
                 </div>
             </operation-step>
             
             <operation-step
-                operation="{{operation}}"
-                result="{{selected_surname}}">
+                operation="{% verbatim %}{{operation}}{% endverbatim %}"
+                result="{% verbatim %}{{selected_surname}}{% endverbatim %}">
 
                 <div class="field">
                     <dropdown-selector
                         url="..." 
-                        selected="{{selected_surname}}"
+                        selected="{% verbatim %}{{selected_surname}}{% endverbatim %}"
                         </dropdown-selector>
                 </div>
             </operation-step>
@@ -53,11 +53,11 @@ $ polymer serve
                 operation="{% verbatim %}{{operation}}{% endverbatim %}"
                 result="{% verbatim %}{{operation_result}}{% endverbatim %}">
                 
-                <django-csrf-token headers="{{tokenHeaders}}"></django-csrf-token>
+                <django-csrf-token headers="{% verbatim %}{{tokenHeaders}}{% endverbatim %}"></django-csrf-token>
                 
                 <apply-operation-step
-                    operation="{{operation}}"
-                    result="{{operation_result}}"
+                    operation="{% verbatim %}{{operation}}{% endverbatim %}"
+                    result="{% verbatim %}{{operation_result}}{% endverbatim %}"
                     url="..."
                     headers="[[tokenHeaders]]">
                     
