@@ -16,10 +16,7 @@
             display: block;
             position: relative;
             margin:0;
-            width: 100%;
             height: 100%;
-            
-            @apply --typography;
         }
         
         app-toolbar{
@@ -46,7 +43,6 @@
         }
 
         ::slotted(*){
-            @apply --typography;
         }
     </style>
     
@@ -171,8 +167,9 @@
         }
         
         _resultsChanged(change){
+            //console.log('!!operation results changed', change);
             if(change.path !== 'operation.steps' && change.path.indexOf('.enabled') == -1){
-                console.log('!!operation results changed', change);
+                
                 // result has chaged
                 let stepPath = change.path.replace('.result', '');
                 let stepKey = this.get(stepPath + '.key');
@@ -206,7 +203,7 @@
                         '_cleanOperation': Object.assign({}, operation)
                     });
             }
-            console.log('operation object', this.operation, this._cleanOperation, this.operationAsString);
+            //console.log('operation object', this.operation, this._cleanOperation, this.operationAsString);
             
             // Use observer to set operation-step object ids
             this._observer = new Polymer.FlattenedNodesObserver(this.$.slot, (info) => {

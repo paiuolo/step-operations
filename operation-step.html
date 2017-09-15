@@ -9,15 +9,13 @@
         :host {
             display: block;
             margin:0;
-            width: 100%;
             height: 100%;
-
-            @apply --typography;
+            @apply --paper-font-common-base;
         }
 
-        p.description{
-            padding: 4px 0 8px;
-            margin: 0;
+        p{
+            font-size: 95%;
+            margin: 8px 0
         }
 
         .container{
@@ -27,14 +25,13 @@
         }
 
         ::slotted(*){
-            @apply --typography;
             @apply(--layout-flex);
         }
         </style>
         
         <div class="container">
             <template is="dom-if" if=[[_description]]>
-                <p class="small description">[[_description]]</p>
+                <p>[[_description]]</p>
             </template>
             
             <slot></slot>
@@ -89,7 +86,7 @@
         }
       
         _resultChanged(result){
-            console.log('step result changed', result);
+            //console.log('step result changed', result);
             this._setResult(result);
         }
       
