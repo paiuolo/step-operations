@@ -28,6 +28,9 @@
           margin: 0;
         }
         
+        paper-button{
+            @apply --paper-button;
+        }
         paper-button:hover{
             @apply --paper-button-hover-mixin;
         }
@@ -55,7 +58,7 @@
         </div>
         
         <div class="buttons">
-            <paper-button on-click="_runOperation" disabled="[[loading]]">Run</paper-button>
+            <paper-button on-click="_runOperation" disabled="[[loading]]">[[runButtonText]]</paper-button>
         </div>
     </div>
     
@@ -92,24 +95,28 @@
                     value: false,
                     notify: true,
                     reflectToAttribute: true
+                },
+                runButtonText: {
+                    type: String,
+                    value: 'Run'
                 }
             };
         }
 
         ready(){
             super.ready();
-            console.log('operation apply ready', this.operation, this.url, this.headers);
+            //console.log('operation apply ready', this.operation, this.url, this.headers);
         }
 
         _runOperation(ev){
-            console.log('run operation', this.operation, this.$.xhr);
+            //console.log('run operation', this.operation, this.$.xhr);
             this.$.xhr.generateRequest();
         }
         
         _onResponse(ev){
             var response = ev.detail;
             var response_object = response.response;
-            console.log('step operation review response', response, response_object);
+            //console.log('step operation review response', response, response_object);
             this.set('result', response_object);
         }
         
