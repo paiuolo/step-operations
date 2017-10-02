@@ -1,6 +1,5 @@
 <link rel="import" href="../polymer/polymer-element.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
 
 
 <dom-module id="operation-step">
@@ -23,17 +22,14 @@
             margin: 0;
             @apply(--layout-vertical);
         }
-
-        ::slotted(*){
-            @apply(--layout-flex);
-        }
         </style>
         
         <div class="container">
-            <template is="dom-if" if=[[_description]]>
-                <p>[[_description]]</p>
-            </template>
-            
+            <slot name="description">
+                <template is="dom-if" if=[[_description]]>
+                    <p>[[_description]]</p>
+                </template>
+            </slot>
             <slot></slot>
         </div>
     

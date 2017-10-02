@@ -109,14 +109,14 @@
         }
 
         _runOperation(ev){
-            //console.log('run operation', this.operation, this.$.xhr);
+            console.log('run operation', this.operation, this.$.xhr);
             this.$.xhr.generateRequest();
         }
         
         _onResponse(ev){
             var response = ev.detail;
             var response_object = response.response;
-            //console.log('step operation review response', response, response_object);
+            console.log('step operation apply', response, response_object);
             this.set('result', response_object);
         }
         
