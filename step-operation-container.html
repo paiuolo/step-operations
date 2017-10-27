@@ -34,7 +34,8 @@
         }
         
         iron-pages{
-            height: 100%;
+            height: calc(100% - 32px);
+            margin: 16px
         }
         
         paper-tab.iron-selected{
@@ -104,9 +105,7 @@
         }
 
         static get observers(){
-            return [
-                '_resultsChanged(operation.steps.*)',
-                '_operationChanged(operationAsString, operation)'];
+            return ['_resultsChanged(operation.steps.*)', ];
         }
 
         _getOperationStepByKey(stepKey){
@@ -147,7 +146,6 @@
         }
         
         _clearNextSteps(stepKey){
-            // console.log('clearing next steps', stepKey)
             let changes = {};
             let completedStep = this._getOperationStepByKey(stepKey);
             let keysOfItemsToChange = completedStep.enables;
@@ -169,9 +167,9 @@
         }
         
         _resultsChanged(change){
-
+            //console.log('!!operation results changed', change);
             if(change.path !== 'operation.steps' && change.path.indexOf('.enabled') == -1){
-                //console.log('!!operation results changed', change);
+                
                 // result has chaged
                 let stepPath = change.path.replace('.result', '');
                 let stepKey = this.get(stepPath + '.key');
@@ -182,8 +180,10 @@
                 }
             }
         }
-        
-        _init(){
+
+        ready(){
+            super.ready();
+            // Check component initialization parameters
             if(this.operation==undefined){
                 if(this.operationAsString != undefined){
                     this.setProperties(
@@ -199,18 +199,11 @@
             else{
                 this.setProperties(
                     {
-                        '_cleanOperation': JSON.parse(JSON.stringify(this.operation))
+                        'operation': operation,
+                        '_cleanOperation': Object.assign({}, operation)
                     });
             }
-        }
-        _operationChanged(operationAsString, operation){
-            this._init();
-        }
-        ready(){
-            super.ready();
-            // Check component initialization parameters
-            this._init();
-            console.log('operation object', this.operation, this._cleanOperation, this.operationAsString);
+            //console.log('operation object', this.operation, this._cleanOperation, this.operationAsString);
             
             // Use observer to set operation-step object ids
             this._observer = new Polymer.FlattenedNodesObserver(this.$.slot, (info) => {
