@@ -1,6 +1,6 @@
-<link rel="import" href="../polymer/polymer-element.html">
-<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
 
 <dom-module id="operation-step">
@@ -9,32 +9,68 @@
         :host {
             display: block;
             margin:0;
-            height: 100%;
+            position: relative;
+            overflow: hidden;
             @apply --paper-font-common-base;
-        }
-
-        p{
-            font-size: 95%;
-            margin: 8px 0
-        }
-
-        .container{
-            height: 100%;
-            margin: 0;
+            @apply(--layout-flex);
             @apply(--layout-vertical);
         }
+        :host([hasMargin]) .container {
+            margin: 16px;
+        }
+        
+        p.description{
+            font-size: 95%;
+        }
+        
+        .buttons q-icon {
+            width: 30px;
+            height: 30px;
+            margin: 15px
+        }
+        
 
+        .container{
+            @apply(--layout-flex);
+            @apply(--layout-horizontal);
+            
+            @apply(--step-operations-operation-step-container);
+        }
+        .container .content{
+            @apply(--layout-flex);
+            @apply(--layout-vertical);
+        }
+        .buttons {
+            @apply(--layout-horizontal);
+            @apply(--layout-center);
+        }
+        
+        .buttons q-icon {
+            cursor: pointer
+        }
+        
         ::slotted(*){
             @apply(--layout-flex);
         }
         </style>
         
         <div class="container">
-            <template is="dom-if" if=[[_description]]>
-                <p>[[_description]]</p>
-            </template>
+            <div class="buttons">
+                <template is="dom-if" if="[[showControls]]">
+                    <a on-click="_stepBack"> &lt; </a>
+                </template>
+            </div>
+            <div class="content">
+                <template is="dom-if" if=[[showDescription]]>
+                    <p class="description">[[_description]]</p>
+                </template>
             
-            <slot></slot>
+                <slot></slot>
+
+            </div>
+            <div class="buttons">
+            
+            </div>
         </div>
     
     </template>
@@ -52,7 +88,8 @@
         static get is() { return 'operation-step'; }
         static get properties() {
             return {
-                operation: {
+                _stepOperationContainer: Object,
+                operationObject: {
                     type: Object,
                     notify: true
                 },
@@ -69,10 +106,23 @@
                     notify: true,
                     reflectToAttribute: true
                 },
-                
+                showControls: {
+                    type: Boolean,
+                    value: false,
+                },
+                showDescription: {
+                    type: Boolean,
+                    value: false,
+                },
+                backTo: Number,
                 _description:{
                     type: String,
-                    computed: '_getDescription(operation, index)'
+                    computed: '_getDescription(operationObject, index)'
+                },
+                                
+                _enabled:{
+                    type: String,
+                    computed: '_getEnabled(operationObject, index)'
                 }
             };
         }
@@ -82,21 +132,37 @@
         }
         
         _setResult(result){
-            this.set('operation.steps.' + this.index + '.result', result);
+            this.set('operationObject.steps.' + this.index + '.result', result);
         }
       
         _resultChanged(result){
-            //console.log('step result changed', result);
+            //console.log('step result changed', result, this._stepOperationContainer);
             this._setResult(result);
         }
       
         ready(){
             super.ready();
-            //console.log('step operation', this.operation, this.index);
         }
         
-        _getDescription(operation, index){
-            return this.get('operation.steps.' + this.index + '.description');
+        _getDescription(operationObject, index){
+            return this.get('operationObject.steps.' + this.index + '.description');
+        }
+        
+        _getEnabled(operationObject, index){
+            return this.get('operationObject.steps.' + this.index + '.enabled');
+        }
+        
+        _isNotFirstStep(index){
+            return index > 0;
+        }
+        
+        _stepBack(){
+            if(this.backTo !== undefined){
+                this._stepOperationContainer.stepTo(this.backTo);
+            }
+            else{
+                this._stepOperationContainer.stepBack();
+            }
         }
 
     }
