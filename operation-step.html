@@ -2,7 +2,6 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-
 <dom-module id="operation-step">
     <template>
         <style>
@@ -57,7 +56,11 @@
         <div class="container">
             <div class="buttons">
                 <template is="dom-if" if="[[showControls]]">
-                    <a on-click="_stepBack"> &lt; </a>
+
+                    <a on-click="_stepBack">
+                        &lt;
+                    </a>
+
                 </template>
             </div>
             <div class="content">

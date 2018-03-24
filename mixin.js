@@ -31,8 +31,11 @@ const StepOperationMixin = (superClass) => class extends superClass {
                     type: Number,
                     value: 0,
                     notify: true
+                },
+                managed:{
+                    type: Boolean,
+                    value: false
                 }
-
             };
         }
         
@@ -40,7 +43,7 @@ const StepOperationMixin = (superClass) => class extends superClass {
             return [
                 '_resultsChanged(operationObject.steps.*)',
                 '_activeStepChanged(activeStep)',
-                   ];
+            ];
         }
         
         _resultsChanged(change){
@@ -52,7 +55,9 @@ const StepOperationMixin = (superClass) => class extends superClass {
                     let stepPath = change.path.replace('.result', '');
                     let stepKey = this.get(stepPath + '.key');
                     
-                    this.setActiveStepResult(stepResult);
+                    if(!this.managed){
+                        this.setActiveStepResult(stepResult);
+                    }
                 }
             }
         }
@@ -114,7 +119,7 @@ const StepOperationMixin = (superClass) => class extends superClass {
         _setLaterStepsEnableState(firstId, enabled){
             let changes = 0;
             let actualLaterStepsKeys = this.operationObject.steps[firstId].enables;
-            this.set('operationObject.steps.' + firstId + '.enabled', enabled);
+            //this.set('operationObject.steps.' + firstId + '.enabled', enabled);
             actualLaterStepsKeys.map((item)=>{
                 let stepId = this._stepIdByKey(item);
                 if(stepId > -1){
@@ -154,6 +159,7 @@ const StepOperationMixin = (superClass) => class extends superClass {
         clearStep(){
             let activeStep = this.getActiveStep();
             return this._setLaterStepsEnableState(activeStep, false);
+            t
         }
         
         
@@ -194,8 +200,8 @@ const StepOperationMixin = (superClass) => class extends superClass {
         
         stepTo(step){
             if(step > -1 && step < this._numberOfSteps){
-                this.clearStep();
                 this.setActiveStep(step);
+                this.clearStep();
             }
         }
         
